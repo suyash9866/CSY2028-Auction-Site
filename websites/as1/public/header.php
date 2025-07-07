@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Carbuy Auctions</title>
+		<title>header</title>
 		<link rel="stylesheet" href="carbuy.css" />
 	</head>
     <body>

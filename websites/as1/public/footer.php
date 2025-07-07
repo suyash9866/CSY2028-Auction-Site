@@ -1,6 +1,3 @@
-<footer>
-	&copy; ibuy 2019
-</footer><!DOCTYPE html>
 <html>
 	<head>
 		<title>Carbuy Auctions</title>
