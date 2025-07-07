@@ -9,7 +9,7 @@ RUN pecl install xdebug
 RUN docker-php-ext-enable xdebug 
 RUN docker-php-ext-install pdo pdo_mysql
 
-# Configure maildev
+# MailDev configuration for local email testing
 
 RUN apk update
 RUN apk add ssmtp
