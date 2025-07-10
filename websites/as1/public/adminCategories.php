@@ -39,5 +39,8 @@ $categories = $stmt->fetchAll();
             <?php endforeach; ?>
         </table>
     </div>
+    <?php
+	require 'manageAdmins.php';
+    ?>
 </body>
 </html>
