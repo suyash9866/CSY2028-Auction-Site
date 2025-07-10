@@ -85,6 +85,20 @@ $categories = $catStmt->fetchAll();
 	require 'addAuction.php';
 ?>
 
+<?php if (isset($_SESSION['user_id'])): ?>
+    <form action="logout.php" method="post" style="text-align: center; margin: 20px;">
+        <button type="submit" style="
+            background-color: #d9534f; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 4px; 
+            cursor: pointer;
+        ">
+            Logout
+        </button>
+    </form>
+<?php endif; ?>
 
 <?php
 	require 'footer.php';
