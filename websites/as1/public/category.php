@@ -3,32 +3,38 @@ session_start();
 require 'db.php';
 ob_start();
 
-// Fix: persistently preserve category ID during multiple sequential searches without relying on referer
+// fetch category id
 if (!isset($_GET['id']) && isset($_SESSION['last_category_id'])) {
     $_GET['id'] = $_SESSION['last_category_id'];
 }
 
+// category id showing from url
 $categoryId = $_GET['id'] ?? null;
 
+// exception handeling
 if (!$categoryId) {
     header("Location: index.php");
     exit;
 }
 
-// Store the last used category ID for persistence across searches
+
 $_SESSION['last_category_id'] = $categoryId;
 
+// detch category detail
 $catStmt = $pdo->prepare("SELECT * FROM category WHERE id = ?");
 $catStmt->execute([$categoryId]);
 $category = $catStmt->fetch();
 
+// exception handeling 
 if (!$category) {
     header("Location: index.php");
     exit;
 }
 
+// search query
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
+// filtering
 if ($search !== '') {
     $stmt = $pdo->prepare("
         SELECT auction.*, category.name AS categoryName 
@@ -43,6 +49,7 @@ if ($search !== '') {
         'search' => '%' . $search . '%'
     ]);
 } else {
+    // when blank shows all
     $stmt = $pdo->prepare("
         SELECT auction.*, category.name AS categoryName 
         FROM auction 
@@ -53,11 +60,12 @@ if ($search !== '') {
     $stmt->execute([$categoryId]);
 }
 
+// Fetch auction data
 $auctions = $stmt->fetchAll();
+
+// Fetch category
 $categories = $pdo->query("SELECT * FROM category")->fetchAll();
 ?>
-
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -110,12 +118,8 @@ $categories = $pdo->query("SELECT * FROM category")->fetchAll();
         <?php endforeach; ?>
     </ul>
 </main>
-<?php
-	require 'addAuction.php';
-?>
+<?php require 'addAuction.php'; ?>
 <footer>&copy; Carbuy 2024</footer>
-<?php
-ob_end_flush();
-?>
+<?php ob_end_flush(); ?>
 </body>
 </html>

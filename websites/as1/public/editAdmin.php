@@ -2,19 +2,20 @@
 session_start();
 require 'db.php';
 
-
+// check if user is admin
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
     header("Location: login.php");
     exit;
 }
 
+// edit 
 $adminId = $_GET['id'] ?? null;
 if (!$adminId || !is_numeric($adminId)) {
     header("Location: manageAdmins.php");
     exit;
 }
 
-
+// admin data
 $stmt = $pdo->prepare("SELECT * FROM user WHERE id = ? AND role = 'admin'");
 $stmt->execute([$adminId]);
 $admin = $stmt->fetch();
@@ -24,6 +25,7 @@ if (!$admin) {
 }
 
 $message = '';
+// update part 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
@@ -31,20 +33,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!empty($name) && !empty($email)) {
         try {
             if (!empty($_POST['password'])) {
+                // for password if inserted
                 $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
                 $stmt = $pdo->prepare("UPDATE user SET name = ?, email = ?, password = ? WHERE id = ? AND role = 'admin'");
                 $stmt->execute([$name, $email, $password, $adminId]);
             } else {
+                // if password not input
                 $stmt = $pdo->prepare("UPDATE user SET name = ?, email = ? WHERE id = ? AND role = 'admin'");
                 $stmt->execute([$name, $email, $adminId]);
             }
             $message = "Admin updated successfully.";
-            // Refresh data to reflect updates immediately
+            // display updated value righg away 
             $stmt = $pdo->prepare("SELECT * FROM user WHERE id = ? AND role = 'admin'");
             $stmt->execute([$adminId]);
             $admin = $stmt->fetch();
         } catch (PDOException $e) {
-            if ($e->getCode() == 23000) { // Duplicate email
+            if ($e->getCode() == 23000) { 
                 $message = "Error: Email already exists.";
             } else {
                 $message = "Error updating admin: " . $e->getMessage();

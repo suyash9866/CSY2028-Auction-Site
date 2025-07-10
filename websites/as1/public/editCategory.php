@@ -2,23 +2,25 @@
 session_start();
 require 'db.php';
 
-// Check admin role
+// check admin
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
     header('Location: login.php');
     exit;
 }
 
-// Fetch category to edit
+// fetch category id
 $id = $_GET['id'] ?? null;
 if (!$id) {
     header('Location: adminCategories.php');
     exit;
 }
 
+// Fetch category details 
 $stmt = $pdo->prepare("SELECT * FROM category WHERE id = ?");
 $stmt->execute([$id]);
 $category = $stmt->fetch();
 
+// exception handeling 
 if (!$category) {
     header('Location: adminCategories.php');
     exit;
@@ -26,9 +28,11 @@ if (!$category) {
 
 $message = '';
 
+// form submission 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = trim($_POST['name']);
     if (!empty($name)) {
+        // Update
         $stmt = $pdo->prepare("UPDATE category SET name = ? WHERE id = ?");
         $stmt->execute([$name, $id]);
         header('Location: adminCategories.php');
@@ -38,7 +42,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html>
 <head>

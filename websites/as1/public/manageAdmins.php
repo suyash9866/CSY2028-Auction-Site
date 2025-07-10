@@ -1,20 +1,22 @@
 <?php
-require 'db.php';
+require 'db.php'; 
 
+// check if admin and allow admin
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
     header("Location: login.php");
     exit;
 }
 
-
+// admin delete part
 if (isset($_GET['delete'])) {
     $adminId = $_GET['delete'];
-    if ($adminId != $_SESSION['user_id']) { // Prevent self-deletion
+    if ($adminId != $_SESSION['user_id']) { // Prevent deleting yourself
         $stmt = $pdo->prepare("DELETE FROM user WHERE id = ? AND role = 'admin'");
         $stmt->execute([$adminId]);
     }
 }
 
+// display admin user
 $admins = $pdo->query("SELECT * FROM user WHERE role = 'admin'")->fetchAll();
 ?>
 

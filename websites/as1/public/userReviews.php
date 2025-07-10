@@ -3,22 +3,21 @@ session_start();
 require 'db.php';
 ob_start();
 
+// get user id
 $reviewerId = $_GET['reviewerId'] ?? null;
-
 if (!$reviewerId) {
     die("Reviewer not specified.");
 }
 
-// Fetch reviewer details
+// Get user info
 $stmt = $pdo->prepare("SELECT * FROM user WHERE id = ?");
 $stmt->execute([$reviewerId]);
 $reviewer = $stmt->fetch();
-
 if (!$reviewer) {
     die("Reviewer not found.");
 }
 
-// Fetch all reviews by this reviewer with auction titles
+// show review of a user
 $reviewStmt = $pdo->prepare("
     SELECT review.*, auction.title AS auctionTitle
     FROM review
@@ -29,7 +28,7 @@ $reviewStmt = $pdo->prepare("
 $reviewStmt->execute([$reviewerId]);
 $reviews = $reviewStmt->fetchAll();
 
-// Fetch categories for navigation
+// get category 
 $categories = $pdo->query("SELECT * FROM category")->fetchAll();
 ?>
 <!DOCTYPE html>
@@ -58,13 +57,17 @@ $categories = $pdo->query("SELECT * FROM category")->fetchAll();
 
 <main>
     <h1>Reviews by <?= htmlspecialchars($reviewer['name']) ?></h1>
+
     <?php if (count($reviews) === 0): ?>
         <p>This user has not posted any reviews yet.</p>
     <?php else: ?>
         <ul>
             <?php foreach ($reviews as $review): ?>
                 <li>
-                    On <a href="auction.php?id=<?= $review['auctionId'] ?>"><?= htmlspecialchars($review['auctionTitle']) ?></a>:
+                    On 
+                    <a href="auction.php?id=<?= $review['auctionId'] ?>">
+                        <?= htmlspecialchars($review['auctionTitle']) ?>
+                    </a>:
                     <?= htmlspecialchars($review['reviewText']) ?>
                     <em><?= $review['created_at'] ?></em>
                 </li>

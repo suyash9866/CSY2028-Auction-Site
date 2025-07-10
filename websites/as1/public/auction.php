@@ -3,25 +3,21 @@ session_start();
 require 'db.php';
 ob_start();
 
-
-// Move search redirect ABOVE auctionId check to avoid 'Auction not specified' when searching
+// search bar 
 if (isset($_GET['search']) && trim($_GET['search']) !== '') {
     $searchQuery = urlencode(trim($_GET['search']));
     header("Location: index.php?search={$searchQuery}");
     exit;
 }
 
+// to check auction id
 $auctionId = $_GET['id'] ?? null;
 if (!$auctionId || !is_numeric($auctionId)) {
     header('Location: index.php');
     exit;
 }
 
-if (!$auctionId) {
-    die("Auction not specified.");
-}
-
-// Fetch auction
+// Fetch auction details
 $stmt = $pdo->prepare("
     SELECT auction.*, category.name AS categoryName, user.name AS sellerName, user.id AS sellerId 
     FROM auction 
@@ -36,17 +32,17 @@ if (!$auction) {
     die("Auction not found.");
 }
 
-// Fetch highest bid
+// display highest bid
 $bidStmt = $pdo->prepare("SELECT MAX(amount) AS maxBid FROM bid WHERE auctionId = ?");
 $bidStmt->execute([$auctionId]);
 $maxBid = $bidStmt->fetch()['maxBid'] ?? null;
 
-// Fetch reviews
+// shows review for that specifiec auction 
 $reviewStmt = $pdo->prepare("SELECT review.*, reviewer.name AS reviewerName FROM review JOIN user AS reviewer ON review.reviewerId = reviewer.id WHERE review.auctionId = ? ORDER BY created_at DESC");
 $reviewStmt->execute([$auctionId]);
 $reviews = $reviewStmt->fetchAll();
 
-// Handle bid submission
+// bid sumbittion 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitBid']) && isset($_SESSION['user_id'])) {
     $bidAmount = $_POST['bid'];
     if (is_numeric($bidAmount) && $bidAmount > 0) {
@@ -57,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitBid']) && isset(
     }
 }
 
-// Handle review submission
+// review
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitReview']) && isset($_SESSION['user_id'])) {
     $reviewText = trim($_POST['reviewText']);
     if (!empty($reviewText)) {
@@ -68,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitReview']) && iss
     }
 }
 
-// Fetch categories for nav
+// show category 
 $categories = $pdo->query("SELECT * FROM category")->fetchAll();
 ?>
 <!DOCTYPE html>
@@ -99,7 +95,7 @@ $categories = $pdo->query("SELECT * FROM category")->fetchAll();
     <h1><?= htmlspecialchars($auction['title']) ?></h1>
     <article class="car">
         <?php if (!empty($auction['imagePath']) && file_exists($auction['imagePath'])): ?>
-        <img src="<?= htmlspecialchars($auction['imagePath']) ?>" alt="<?= htmlspecialchars($auction['title']) ?>" style="max-width:300px; height:auto;">
+            <img src="<?= htmlspecialchars($auction['imagePath']) ?>" alt="<?= htmlspecialchars($auction['title']) ?>" style="max-width:300px; height:auto;">
         <?php else: ?>
             <img src="car.png" alt="<?= htmlspecialchars($auction['title']) ?>">
         <?php endif; ?>
@@ -108,7 +104,7 @@ $categories = $pdo->query("SELECT * FROM category")->fetchAll();
             <h3><?= htmlspecialchars($auction['categoryName']) ?></h3>
             <p>Auction created by <a href="#"><?= htmlspecialchars($auction['sellerName']) ?></a></p>
             <p class="price"><?= $maxBid ? "Current bid: £" . number_format($maxBid, 2) : "No bids yet" ?></p>
-            <time>Time left: 
+            <time>
                 <?php
                 $now = new DateTime();
                 $end = new DateTime($auction['endDate']);
@@ -155,14 +151,9 @@ $categories = $pdo->query("SELECT * FROM category")->fetchAll();
             <?php endif; ?>
         </section>
     </article>
-
 </main>
-<?php
-	require 'editAuction.php';
-?>
+<?php require 'editAuction.php'; ?>
 <footer>&copy; Carbuy 2024</footer>
-<?php
-ob_end_flush();
-?>
+<?php ob_end_flush(); ?>
 </body>
 </html>

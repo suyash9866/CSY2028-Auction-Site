@@ -3,10 +3,11 @@ session_start();
 require 'db.php';
 ob_start();
 
-// Fetch 10 auctions ending soonest
+// for filtering 
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
 if ($search !== '') {
+    
     $stmt = $pdo->prepare("
         SELECT auction.*, category.name AS categoryName 
         FROM auction 
@@ -16,6 +17,7 @@ if ($search !== '') {
     ");
     $stmt->execute(['search' => '%' . $search . '%']);
 } else {
+    
     $stmt = $pdo->query("
         SELECT auction.*, category.name AS categoryName 
         FROM auction 
@@ -26,8 +28,7 @@ if ($search !== '') {
 }
 $auctions = $stmt->fetchAll();
 
-
-// Fetch categories for navigation
+// category 
 $catStmt = $pdo->query("SELECT * FROM category");
 $categories = $catStmt->fetchAll();
 ?>
@@ -39,17 +40,19 @@ $categories = $catStmt->fetchAll();
     <link rel="stylesheet" href="carbuy.css" />
 </head>
 <body>
-<?php
-	require 'header.php';
-?>
+
+<?php require 'header.php'; ?>
 
 <nav>
     <ul>
         <?php foreach ($categories as $cat): ?>
-            <li><a class="categoryLink" href="category.php?id=<?= $cat['id'] ?>"><?= htmlspecialchars($cat['name']) ?></a></li>
+            <li><a class="categoryLink" href="category.php?id=<?= $cat['id'] ?>">
+                <?= htmlspecialchars($cat['name']) ?>
+            </a></li>
         <?php endforeach; ?>
     </ul>
 </nav>
+
 <img src="banners/1.jpg" alt="Banner" />
 
 <main>
@@ -57,21 +60,26 @@ $categories = $catStmt->fetchAll();
     <ul class="carList">
         <?php foreach ($auctions as $auction): ?>
             <li>
-                    <?php if (!empty($auction['imagePath']) && file_exists($auction['imagePath'])): ?>
-				<img src="<?= htmlspecialchars($auction['imagePath']) ?>" alt="<?= htmlspecialchars($auction['title']) ?>" style="max-width:300px; height:auto;">
-				<?php else: ?>
-				<img src="car.png" alt="<?= htmlspecialchars($auction['title']) ?>">
-				<?php endif; ?>
+                <?php if (!empty($auction['imagePath']) && file_exists($auction['imagePath'])): ?>
+                    <img src="<?= htmlspecialchars($auction['imagePath']) ?>" alt="<?= htmlspecialchars($auction['title']) ?>" style="max-width:300px; height:auto;">
+                <?php else: ?>
+                    <img src="car.png" alt="<?= htmlspecialchars($auction['title']) ?>">
+                <?php endif; ?>
                 <article>
                     <h2 style="margin-left: 150px;"><?= htmlspecialchars($auction['title']) ?></h2>
                     <h3 style="margin-left: 150px;"><?= htmlspecialchars($auction['categoryName']) ?></h3>
-                    <p style="margin-left: 150px;"><?= nl2br(htmlspecialchars(substr($auction['description'], 0, 200))) ?>...</p>
+                    <p style="margin-left: 150px;">
+                        <?= nl2br(htmlspecialchars(substr($auction['description'], 0, 200))) ?>...
+                    </p>
                     <p class="price">
                         <?php
+                        // display highest bid
                         $bidStmt = $pdo->prepare("SELECT MAX(amount) AS maxBid FROM bid WHERE auctionId = ?");
                         $bidStmt->execute([$auction['id']]);
                         $bid = $bidStmt->fetch();
-                        echo $bid && $bid['maxBid'] ? "Current bid: £" . number_format($bid['maxBid'], 2) : "No bids yet";
+                        echo $bid && $bid['maxBid'] ? 
+                            "Current bid: £" . number_format($bid['maxBid'], 2) : 
+                            "No bids yet";
                         ?>
                     </p>
                     <a href="auction.php?id=<?= $auction['id'] ?>" class="more auctionLink">More &gt;&gt;</a>
@@ -81,11 +89,10 @@ $categories = $catStmt->fetchAll();
     </ul>
 </main>
 
-<?php
-	require 'addAuction.php';
-?>
+<?php require 'addAuction.php'; ?>
 
 <?php if (isset($_SESSION['user_id'])): ?>
+    <!-- Logout -->
     <form action="logout.php" method="post" style="text-align: center; margin: 20px;">
         <button type="submit" style="
             background-color: #d9534f; 
@@ -93,20 +100,14 @@ $categories = $catStmt->fetchAll();
             border: none; 
             padding: 10px 20px; 
             border-radius: 4px; 
-            cursor: pointer;
-        ">
+            cursor: pointer;">
             Logout
         </button>
     </form>
 <?php endif; ?>
 
-<?php
-	require 'footer.php';
-?>
+<?php require 'footer.php'; ?>
 
-<?php
-ob_end_flush();
-?>
-
+<?php ob_end_flush(); ?>
 </body>
 </html>

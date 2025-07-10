@@ -2,13 +2,13 @@
 session_start();
 require 'db.php';
 
-// Check admin role
+// Check if user is admin
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
     header('Location: login.php');
     exit;
 }
 
-// Fetch all categories
+// get category from database
 $stmt = $pdo->query("SELECT * FROM category ORDER BY id DESC");
 $categories = $stmt->fetchAll();
 ?>
@@ -23,6 +23,7 @@ $categories = $stmt->fetchAll();
     <div class="container">
         <h2>Manage Categories</h2>
         <a href="addCategory.php">➕ Add New Category</a>
+
         <table>
             <tr>
                 <th>Category Name</th>
@@ -39,8 +40,9 @@ $categories = $stmt->fetchAll();
             <?php endforeach; ?>
         </table>
     </div>
-    <?php
-	require 'manageAdmins.php';
-    ?>
+
+<?php
+require 'manageAdmins.php';
+?>
 </body>
 </html>

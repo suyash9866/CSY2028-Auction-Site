@@ -1,6 +1,6 @@
 <?php
 require 'db.php';
-
+// check auction id
 $auctionId = isset($_GET['id']) ? $_GET['id'] : null;
 if (!$auctionId) {
     die("Auction ID missing.");
@@ -50,11 +50,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
 
 // Handle delete
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete'])) {
-    // Delete associated bids first to maintain referential integrity
+    
     $stmt = $pdo->prepare("DELETE FROM bid WHERE auctionId = ?");
     $stmt->execute([$auctionId]);
 
-    // Now safely delete the auction
+    
     $stmt = $pdo->prepare("DELETE FROM auction WHERE id = ?");
     $stmt->execute([$auctionId]);
 

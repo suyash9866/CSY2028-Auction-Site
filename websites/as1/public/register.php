@@ -1,15 +1,17 @@
 <?php
 session_start();
-require 'db.php';
+require 'db.php'; 
 
 $message = '';
 
+// form submission 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
     $password = $_POST['password'];
     $role = $_POST['role'] ?? 'user';
 
+    // check input 
     if (empty($name) || empty($email) || empty($password) || empty($role)) {
         $message = "All fields are required.";
     } elseif (!in_array($role, ['admin', 'user'])) {
@@ -22,6 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $message = "Password must be 6-21 characters.";
     } else {
         try {
+            // check email
             $stmt = $pdo->prepare("SELECT * FROM user WHERE email = ?");
             $stmt->execute([$email]);
             $existingUser = $stmt->fetch();
@@ -29,10 +32,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($existingUser) {
                 $message = "Email already registered. Please use a different email.";
             } else {
+                // create user
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
                 $stmt = $pdo->prepare("INSERT INTO user (name, email, password, role) VALUES (?, ?, ?, ?)");
                 $stmt->execute([$name, $email, $hashed_password, $role]);
 
+                // redirect to login 
                 header("Location: login.php");
                 exit;
             }
