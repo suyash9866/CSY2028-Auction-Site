@@ -53,19 +53,6 @@ header form input[type=submit] {
 	border: 0;
 }
 
-header .i {
-	color: #e43137;
-}
-header .b {
-	color: #0063d1;
-}
-header .u {
-	color: #f4ae01;
-}
-header .y {
-	color: #85b716;
-}
-
 body > nav {
 	border-bottom: 1px solid #ddd;
 }
