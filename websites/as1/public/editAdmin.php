@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
 // edit 
 $adminId = $_GET['id'] ?? null;
 if (!$adminId || !is_numeric($adminId)) {
-    header("Location: manageAdmins.php");
+    header("Location: adminCategories.php");
     exit;
 }
 
@@ -20,7 +20,7 @@ $stmt = $pdo->prepare("SELECT * FROM user WHERE id = ? AND role = 'admin'");
 $stmt->execute([$adminId]);
 $admin = $stmt->fetch();
 if (!$admin) {
-    header("Location: manageAdmins.php");
+    header("Location: adminCategories.php");
     exit;
 }
 
@@ -77,7 +77,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input type="password" name="password" placeholder="New Password (leave blank to keep)"><br>
         <button type="submit">Update Admin</button>
     </form>
-    <a href="manageAdmins.php">Back to Manage Admins</a>
+    <a href="adminCategories.php">Back to Manage Admins</a>
 </div>
 </body>
 </html>

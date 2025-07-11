@@ -20,6 +20,10 @@ $categories = $stmt->fetchAll();
     <link rel="stylesheet" href="admin.css">
 </head>
 <body>
+    <?php if (isset($_GET['error'])): ?>
+    <p class="message" style="color: red;"><?= htmlspecialchars($_GET['error']) ?></p>
+    <?php endif; ?>
+
     <div class="container">
         <h2>Manage Categories</h2>
         <a href="addCategory.php">➕ Add New Category</a>
@@ -44,5 +48,21 @@ $categories = $stmt->fetchAll();
 <?php
 require 'manageAdmins.php';
 ?>
+<?php if (isset($_SESSION['user_id'])): ?>
+    <!-- Logout -->
+    <form action="logout.php" method="post" style="text-align: center; margin: 20px;">
+        <button type="submit" style="
+            background-color: #d9534f; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 4px; 
+            cursor: pointer;
+            margin-left: 670px; 
+            margin-right: 670px;">
+            Logout
+        </button>
+    </form>
+<?php endif; ?>
 </body>
 </html>

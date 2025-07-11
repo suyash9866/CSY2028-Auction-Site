@@ -60,7 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <button type="submit">Add Admin</button>
     </form>
 
-    <p><a href="manageAdmins.php">Back to Manage Admins</a></p>
+    <p><a href="adminCategories.php">Back to Manage Admins</a></p>
 </div>
 </body>
 </html>

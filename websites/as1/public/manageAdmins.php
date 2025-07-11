@@ -1,4 +1,7 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require 'db.php'; 
 
 // check if admin and allow admin
@@ -14,6 +17,8 @@ if (isset($_GET['delete'])) {
         $stmt = $pdo->prepare("DELETE FROM user WHERE id = ? AND role = 'admin'");
         $stmt->execute([$adminId]);
     }
+    header("Location: adminCategories.php");
+    exit;
 }
 
 // display admin user
@@ -40,7 +45,7 @@ $admins = $pdo->query("SELECT * FROM user WHERE role = 'admin'")->fetchAll();
             <td><?= htmlspecialchars($admin['email']) ?></td>
             <td>
                 <a href="editAdmin.php?id=<?= $admin['id'] ?>">Edit</a>
-                <?php if ($admin['id'] != $_SESSION['user_id']): ?> <!-- Prevent self-deletion -->
+                <?php if ($admin['id'] != $_SESSION['user_id']): ?> 
                 | <a href="manageAdmins.php?delete=<?= $admin['id'] ?>" onclick="return confirm('Delete this admin?')">Delete</a>
                 <?php endif; ?>
             </td>
